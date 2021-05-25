@@ -1,5 +1,7 @@
 package com.abc.springreactfullstack.student;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,23 +14,19 @@ import java.util.List;
 @RequestMapping("api/v1/students")
 public class StudentController {
 
-    @GetMapping
-    public List<Student> getStudents() {
-        List<Student> customers = Arrays.asList(
-                new Student(1L, "Yam", "yam@gmail.com", Gender.MALE),
-                new Student(2L, "Alex", "alex@gmail.com", Gender.MALE),
-                new Student(3L, "James", "jms@gmail.com", Gender.MALE),
-                new Student(4L, "Afrita", "afrt@gmail.com", Gender.FEMALE)
-        );
+    private final StudentService studentService;
 
-        return customers;
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Student>> getStudents() {
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.getAllStudents());
     }
 
     @GetMapping("{id}")
-    public Student getStudent(@PathVariable("id") Long id) {
-        return getStudents().stream()
-                .filter(s -> s.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Student was not found with id " + id));
+    public ResponseEntity<Student> getStudent(@PathVariable("id") Long id) {
+       return ResponseEntity.status(HttpStatus.OK).body(studentService.getStudentById(id));
     }
 }
