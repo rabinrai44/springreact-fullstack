@@ -38,4 +38,8 @@ public class StudentService {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Student was not found with id: " + id));
     }
+
+    public Student save(Student student) {
+        return studentRepository.save(student);
+    }
 }

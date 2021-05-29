@@ -1,4 +1,15 @@
-import { Layout, Menu, Breadcrumb, Table, spin, Spin, Empty } from "antd";
+import {
+  Layout,
+  Menu,
+  Breadcrumb,
+  Table,
+  Tag,
+  Spin,
+  Empty,
+  Button,
+  Badge,
+  Avatar,
+} from "antd";
 import {
   DesktopOutlined,
   PieChartOutlined,
@@ -6,7 +17,10 @@ import {
   TeamOutlined,
   UserOutlined,
   LoadingOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
+
+import StudentDrawerForm from "./StudentDrawerForm";
 
 import "./App.css";
 import { getAllStudents } from "./client";
@@ -17,10 +31,28 @@ const { SubMenu } = Menu;
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
+const TheAvatar = ({ name }) => {
+  let inputName = name.toUpperCase();
+  let trimName = inputName.trim();
+
+  if (trimName.length === 0) return <Avatar icon={<UserOutlined />} />;
+
+  const split = trimName.split(" ");
+  if (split.length === 1) return <Avatar>{inputName.charAt(0)}</Avatar>;
+
+  return (
+    <Avatar>{`${inputName.charAt(0)}${inputName.charAt(
+      inputName.length - 1
+    )}`}</Avatar>
+  );
+};
+
 function App() {
   const [students, setStudents] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
   const [fetching, setFetching] = useState(true);
+
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const fetchStudents = () =>
     getAllStudents()
@@ -39,6 +71,12 @@ function App() {
   }, []);
 
   const columns = [
+    {
+      title: "",
+      dataIndex: "avatar",
+      key: "avatar",
+      render: (text, student) => <TheAvatar name={student.name} />,
+    },
     {
       title: "Id",
       dataIndex: "id",
@@ -77,17 +115,41 @@ function App() {
     if (students.length <= 0) {
       return <Empty />;
     }
+    const size = 10;
 
     return (
-      <Table
-        dataSource={students}
-        columns={columns}
-        bordered
-        title={() => "Students"}
-        pagination={{ pageSize: 50 }}
-        scroll={{ y: 240 }}
-        rowKey={(student) => student.id}
-      />
+      <>
+        <StudentDrawerForm
+          showDrawer={showDrawer}
+          setShowDrawer={setShowDrawer}
+          fetchStudents={fetchStudents}
+        />
+        <Table
+          dataSource={students}
+          columns={columns}
+          bordered
+          title={() => (
+            <>
+              <Button
+                onClick={() => setShowDrawer(!showDrawer)}
+                type="primary"
+                shape="round"
+                icon={<PlusOutlined />}
+                size="small"
+              >
+                Add New Student
+              </Button>
+              <br />
+              <br />
+              <Tag style={{ marginLeft: "5px" }}>No of students</Tag>
+              <Badge count={students.length} className="site-badge-count-4" />
+            </>
+          )}
+          pagination={{ pageSize: 50 }}
+          scroll={{ y: 240 }}
+          rowKey={(student) => student.id}
+        />
+      </>
     );
   };
 
