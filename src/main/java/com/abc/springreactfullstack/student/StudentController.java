@@ -33,4 +33,9 @@ public class StudentController {
 
        return ResponseEntity.status(HttpStatus.CREATED).body(studentService.save(student));
     }
+
+    @DeleteMapping("/{studentId}")
+    public void deleteStudent(@PathVariable("studentId") Long id) {
+        studentService.deleteStudent(id);
+    }
 }

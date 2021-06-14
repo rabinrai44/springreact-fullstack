@@ -42,4 +42,11 @@ public class StudentService {
     public Student save(Student student) {
         return studentRepository.save(student);
     }
+
+    public void deleteStudent(Long id) {
+        var student = studentRepository.findById(id).get();
+        if (student == null)
+            throw new IllegalStateException("Invalid entry");
+        studentRepository.delete(student);
+    }
 }

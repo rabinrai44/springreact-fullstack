@@ -9,6 +9,8 @@ import {
   Button,
   Badge,
   Avatar,
+  Radio,
+  Popconfirm,
 } from "antd";
 import {
   DesktopOutlined,
@@ -23,8 +25,9 @@ import {
 import StudentDrawerForm from "./StudentDrawerForm";
 
 import "./App.css";
-import { getAllStudents } from "./client";
+import { deleteStudent, getAllStudents } from "./client";
 import { useEffect, useState } from "react";
+import { successNotification } from "./shared/AppNotifications";
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -54,6 +57,17 @@ function App() {
 
   const [showDrawer, setShowDrawer] = useState(false);
 
+  const removeStudent = (studentId, callback) => {
+    console.log(callback());
+    deleteStudent(studentId).then(() => {
+      successNotification(
+        "Student deleted",
+        `Student with ${studentId} was deleted`
+      );
+      callback();
+    });
+  };
+
   const fetchStudents = () =>
     getAllStudents()
       .then((res) => res.json())
@@ -70,7 +84,7 @@ function App() {
     fetchStudents();
   }, []);
 
-  const columns = [
+  const columns = (fetchStudents) => [
     {
       title: "",
       dataIndex: "avatar",
@@ -96,6 +110,24 @@ function App() {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, student) => (
+        <Radio.Group>
+          <Popconfirm
+            placement="topRight"
+            title={`Are you sure to delete ${student.name}`}
+            onConfirm={() => removeStudent(student.id, fetchStudents)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Radio.Button value="small">Delete</Radio.Button>
+          </Popconfirm>
+          <Radio.Button value="small">Edit</Radio.Button>
+        </Radio.Group>
+      ),
     },
   ];
 
@@ -126,7 +158,7 @@ function App() {
         />
         <Table
           dataSource={students}
-          columns={columns}
+          columns={columns(fetchStudents)}
           bordered
           title={() => (
             <>
